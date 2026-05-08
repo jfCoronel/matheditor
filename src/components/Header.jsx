@@ -5,8 +5,8 @@ export function Header() {
         <rect width="32" height="32" rx="6" fill="#185fa5"/>
         <text x="16" y="24" fontSize="22" textAnchor="middle" fill="white" fontFamily="Georgia, serif">∑</text>
       </svg>
-      <h1>Editor de ecuaciones LaTeX → SVG</h1>
-      <span className="badge">SVG + metadatos LaTeX</span>
+      <h1>Editor de ecuaciones → SVG</h1>
+      <span className="badge">LaTeX · ASCIIMath · SVG</span>
     </header>
   );
 }
