@@ -19,10 +19,14 @@ export function unescapeXml(str) {
 // Encode LaTeX as URL-safe base64 for use in an XML id attribute.
 // XML ids can contain: letters, digits, '-', '_', '.', ':' — standard base64
 // uses '+', '/' and '=' which are not allowed, so we use the URL-safe variant.
-export function encodeLatexId(latex) {
-  const bytes = new TextEncoder().encode(latex);
-  const b64   = btoa(Array.from(bytes, b => String.fromCharCode(b)).join(''));
-  return 'lxs-' + b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+export function encodeLatexId(formula, mode = 'tex') {
+  const bytes  = new TextEncoder().encode(formula);
+  const b64    = btoa(Array.from(bytes, b => String.fromCharCode(b)).join(''));
+  const b64url = b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  // prefix encodes mode so it survives Word's metadata stripping:
+  //   lxs-tex-{b64}  →  LaTeX
+  //   lxs-asc-{b64}  →  ASCIIMath
+  return (mode === 'asciimath' ? 'lxs-asc-' : 'lxs-tex-') + b64url;
 }
 
 // MathJax SVG viewBox units: 1 unit = 1/1000 em.
@@ -39,7 +43,7 @@ function applyPtDimensions(svgEl, fontSize) {
   svgEl.setAttribute('height', `${(vbH / 1000 * fontSize).toFixed(3)}pt`);
 }
 
-export function buildExportSvg(svgEl, latex, fontSize = 12) {
+export function buildExportSvg(svgEl, formula, fontSize = 12, mode = 'tex') {
   const ns    = 'http://www.w3.org/2000/svg';
   const clone = svgEl.cloneNode(true);
 
@@ -47,14 +51,14 @@ export function buildExportSvg(svgEl, latex, fontSize = 12) {
 
   clone.setAttribute('xmlns',       ns);
   clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
-  // id encodes the LaTeX in base64url — survives Word's SVG processing
-  clone.setAttribute('id', encodeLatexId(latex));
+  // id encodes the formula in base64url — survives Word's SVG processing
+  clone.setAttribute('id', encodeLatexId(formula, mode));
 
   // <metadata> for LibreOffice, Inkscape and other SVG-aware tools
   const meta = document.createElementNS(ns, 'metadata');
   meta.innerHTML =
-    '<latex-source xmlns="https://schemas.latexeditor.app/1.0">' +
-    escapeXml(latex) +
+    `<latex-source xmlns="https://schemas.latexeditor.app/1.0" mode="${mode}">` +
+    escapeXml(formula) +
     '</latex-source>';
   clone.insertBefore(meta, clone.firstChild);
 

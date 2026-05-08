@@ -1,3 +1,15 @@
+export const ASCII_EXAMPLES = [
+  { label: 'Integral gaussiana',  src: 'int_0^oo e^(-x^2) dx = sqrt(pi)/2' },
+  { label: 'Identidad de Euler',  src: 'e^(i pi) + 1 = 0' },
+  { label: 'Fracción',            src: '(x^2 + 1)/(2x - 3)' },
+  { label: 'Sumatorio',           src: 'sum_(k=0)^n k = (n(n+1))/2' },
+  { label: 'Serie de Taylor',     src: 'f(x) = sum_(n=0)^oo (f^((n))(a))/(n!)(x-a)^n' },
+  { label: 'Binomio de Newton',   src: '(x+y)^n = sum_(k=0)^n ((n),(k)) x^(n-k) y^k' },
+  { label: 'Límite',              src: 'lim_(x->0) (sin x)/x = 1' },
+  { label: 'Raíz n-ésima',       src: 'root(3)(x^2 + 1)' },
+  { label: 'Matriz',              src: '[[a, b],[c, d]]' },
+];
+
 export const EXAMPLES = [
   { label: 'Integral gaussiana',  src: '\\int_0^\\infty e^{-x^2}\\,dx = \\dfrac{\\sqrt{\\pi}}{2}' },
   { label: 'Identidad de Euler',  src: 'e^{i\\pi} + 1 = 0' },

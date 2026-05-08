@@ -1,32 +1,46 @@
 import { unescapeXml } from './svgUtils';
 
 function decodeLatexId(id) {
-  const b64    = id.slice(4).replace(/-/g, '+').replace(/_/g, '/');
+  let encoded, mode;
+  if (id.startsWith('lxs-tex-')) {
+    encoded = id.slice(8); mode = 'tex';
+  } else if (id.startsWith('lxs-asc-')) {
+    encoded = id.slice(8); mode = 'asciimath';
+  } else {
+    // Legacy format lxs-{b64} — assume tex
+    encoded = id.slice(4); mode = 'tex';
+  }
+  const b64    = encoded.replace(/-/g, '+').replace(/_/g, '/');
   const padded = b64 + '=='.slice(0, (4 - b64.length % 4) % 4);
   const bytes  = Uint8Array.from(atob(padded), c => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
+  return { formula: new TextDecoder().decode(bytes), mode };
 }
 
+// Returns { formula, mode } or null if no metadata found.
+// mode is 'tex' | 'asciimath', defaults to 'tex' for backwards compatibility.
 export function parseSvgForLatex(svgText) {
   const parser = new DOMParser();
   const doc    = parser.parseFromString(svgText, 'image/svg+xml');
-  let latex    = null;
+  const svgEl  = doc.querySelector('svg');
+  let formula  = null;
+  let mode     = 'tex';
 
-  const svgEl = doc.querySelector('svg');
-
-  // Method 1: id="lxs-{base64url}" — current format, survives Word
-  if (svgEl?.id?.startsWith('lxs-')) {
-    try { latex = decodeLatexId(svgEl.id); } catch { /* malformed */ }
+  // Method 1: <latex-source mode="..."> inside <metadata> — current format
+  const lsEl = doc.querySelector('latex-source');
+  if (lsEl) {
+    formula = lsEl.textContent;
+    const m = lsEl.getAttribute('mode');
+    if (m === 'asciimath') mode = 'asciimath';
   }
 
-  // Method 2: <latex-source> inside <metadata> — current format, LibreOffice/Inkscape
-  if (!latex) {
-    const lsEl = doc.querySelector('latex-source');
-    if (lsEl) latex = lsEl.textContent;
+  // Method 2: id="lxs-{base64url}" — survives Word; mode encoded in prefix since lxs-tex-/lxs-asc-
+  if (!formula && svgEl?.id?.startsWith('lxs-')) {
+    try { ({ formula, mode } = decodeLatexId(svgEl.id)); } catch { /* malformed */ }
   }
 
-  // Method 3: data-latex attribute — backwards compat with previously exported SVGs
-  if (!latex && svgEl) latex = svgEl.getAttribute('data-latex');
+  // Method 3: data-latex — backwards compat
+  if (!formula && svgEl) formula = svgEl.getAttribute('data-latex');
 
-  return latex ? unescapeXml(latex.trim()) : null;
+  if (!formula) return null;
+  return { formula: unescapeXml(formula.trim()), mode };
 }

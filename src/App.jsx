@@ -21,11 +21,13 @@ export default function App() {
   const [status,           setStatusState]     = useState({ message: '', type: '' });
   const [svgPicker,        setSvgPicker]       = useState([]);
   const [fontSize,         setFontSize]        = useState(12);
+  const [inputMode,        setInputMode]       = useState('tex');
 
-  const mjReady     = useMathJax();
-  const initialised = useRef(false);
-  const fontSizeRef = useRef(12);
+  const mjReady      = useMathJax();
+  const initialised  = useRef(false);
+  const fontSizeRef  = useRef(12);
   const latexInputRef = useRef('');
+  const inputModeRef = useRef('tex');
 
   const setStatus = useCallback((message, type = '') => {
     setStatusState({ message, type });
@@ -49,17 +51,25 @@ export default function App() {
     }
 
     try {
-      const container = window.MathJax.tex2svg(trimmed, { display: true });
+      const renderFn = inputModeRef.current === 'asciimath'
+        ? window.MathJax.asciimath2svg
+        : window.MathJax.tex2svg;
+      if (!renderFn) { setStatus('MathJax aún no está listo...', ''); return; }
+      const container = renderFn.call(window.MathJax, trimmed, { display: true });
 
       if (container.querySelector('[data-mml-node="merror"]')) {
-        throw new Error('Sintaxis LaTeX inválida — revisa la expresión');
+        throw new Error(
+          inputModeRef.current === 'asciimath'
+            ? 'Sintaxis ASCIIMath inválida — revisa la expresión'
+            : 'Sintaxis LaTeX inválida — revisa la expresión'
+        );
       }
 
       const svgEl = container.querySelector('svg');
       if (!svgEl) throw new Error('MathJax no generó ningún SVG');
 
       setCurrentLatex(trimmed);
-      setCurrentSvgString(buildExportSvg(svgEl, trimmed, pt));
+      setCurrentSvgString(buildExportSvg(svgEl, trimmed, pt, inputModeRef.current));
 
       const preview = svgEl.cloneNode(true);
       applyPtDimensions(preview, pt);
@@ -92,6 +102,18 @@ export default function App() {
     if (latexInputRef.current.trim()) renderLatex(latexInputRef.current, pt);
   }, [renderLatex]);
 
+  const handleModeChange = useCallback((mode) => {
+    inputModeRef.current = mode;
+    setInputMode(mode);
+    latexInputRef.current = '';
+    setLatexInput('');
+    setPreviewSvgHtml('');
+    setPreviewError('');
+    setCurrentSvgString('');
+    setCurrentLatex('');
+    setStatus('');
+  }, []);
+
   const handleDownload = useCallback(() => {
     if (!currentSvgString) { setStatus('Nada que descargar', 'err'); return; }
 
@@ -110,14 +132,17 @@ export default function App() {
   }, [currentSvgString, currentLatex, setStatus]);
 
   const loadSvgContent = useCallback((content, name = 'archivo.svg') => {
-    const latex = parseSvgForLatex(content);
-    if (latex) {
-      latexInputRef.current = latex;
-      setLatexInput(latex);
-      renderLatex(latex);
-      setStatus('✓ LaTeX recuperado: ' + latex.substring(0, 60) + (latex.length > 60 ? '…' : ''), 'ok');
+    const result = parseSvgForLatex(content);
+    if (result) {
+      const { formula, mode } = result;
+      inputModeRef.current = mode;
+      setInputMode(mode);
+      latexInputRef.current = formula;
+      setLatexInput(formula);
+      renderLatex(formula);
+      setStatus('✓ Fórmula recuperada: ' + formula.substring(0, 60) + (formula.length > 60 ? '…' : ''), 'ok');
     } else {
-      setStatus(`"${name}" no contiene metadatos LaTeX (no fue generado con este editor).`, 'err');
+      setStatus(`"${name}" no contiene metadatos de fórmula (no fue generado con este editor).`, 'err');
     }
   }, [renderLatex, setStatus]);
 
@@ -169,6 +194,8 @@ export default function App() {
             value={latexInput}
             onChange={v => { latexInputRef.current = v; setLatexInput(v); }}
             onRender={renderLatex}
+            inputMode={inputMode}
+            onModeChange={handleModeChange}
           />
           <Preview
             mjReady={mjReady}
