@@ -80,7 +80,16 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange 
             onClick={() => onModeChange('asciimath')}
           >ASCIIMath</button>
         </div>
-        <span className="panel-hint">Ctrl+Enter renderiza</span>
+        <select
+          className="ex-select"
+          value=""
+          onChange={e => { if (e.target.value) handleExample(e.target.value); }}
+        >
+          <option value="" disabled>Ejemplos de ecuaciones…</option>
+          {examples.map(ex => (
+            <option key={ex.label} value={ex.src}>{ex.label}</option>
+          ))}
+        </select>
       </div>
       <CodeMirror
         value={value}
@@ -99,16 +108,6 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange 
         className="cm-latex-editor"
         placeholder={placeholder}
       />
-      <select
-        className="ex-select"
-        value=""
-        onChange={e => { if (e.target.value) handleExample(e.target.value); }}
-      >
-        <option value="" disabled>Ejemplos de ecuaciones…</option>
-        {examples.map(ex => (
-          <option key={ex.label} value={ex.src}>{ex.label}</option>
-        ))}
-      </select>
     </div>
   );
 }

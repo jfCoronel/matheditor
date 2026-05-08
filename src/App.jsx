@@ -73,7 +73,7 @@ export default function App() {
 
       const preview = svgEl.cloneNode(true);
       applyPtDimensions(preview, pt);
-      preview.style.cssText = 'max-width:100%; max-height:220px; height:auto;';
+      preview.style.cssText = 'max-width:100%; height:auto;';
       setPreviewSvgHtml(preview.outerHTML);
       setPreviewError('');
 

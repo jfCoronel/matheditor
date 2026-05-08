@@ -90,13 +90,12 @@ main {
 
 .panels {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 12px;
   margin-bottom: 12px;
 }
 
 @media (max-width: 640px) {
-  .panels { grid-template-columns: 1fr; }
   main { padding: 14px 16px; }
 }
 
@@ -123,11 +122,6 @@ main {
   margin-bottom: 8px;
 }
 
-.panel-hint {
-  font-size: 10px;
-  color: var(--text-3);
-  margin-left: auto;
-}
 
 /* ── Mode toggle ──────────────────────────────────────────── */
 .mode-toggle {
@@ -164,7 +158,7 @@ main {
 /* ── LaTeX input (CodeMirror) ─────────────────────────────── */
 .cm-latex-editor .cm-editor {
   width: 100%;
-  min-height: 180px;
+  min-height: 80px;
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.7;
@@ -182,12 +176,12 @@ main {
 
 .cm-latex-editor .cm-scroller {
   font-family: var(--font-mono) !important;
-  min-height: 180px;
+  min-height: 80px;
 }
 
 .cm-latex-editor .cm-content {
   padding: 10px 12px;
-  min-height: 160px;
+  min-height: 60px;
 }
 
 .cm-latex-editor .cm-placeholder {
@@ -197,10 +191,9 @@ main {
 
 /* ── Examples dropdown ────────────────────────────────────── */
 .ex-select {
-  margin-top: 8px;
-  width: 100%;
+  margin-left: auto;
   font-size: 12px;
-  padding: 5px 8px;
+  padding: 3px 8px;
   background: var(--bg-2);
   border: 0.5px solid var(--border);
   border-radius: var(--radius-md);
@@ -215,7 +208,7 @@ main {
 
 /* ── Preview area ─────────────────────────────────────────── */
 #preview-box {
-  min-height: 180px;
+  min-height: 64px;
   background: var(--bg-2);
   border-radius: var(--radius-md);
   display: flex;
@@ -227,7 +220,6 @@ main {
 
 #preview-box svg {
   max-width: 100%;
-  max-height: 220px;
   height: auto;
 }
 
