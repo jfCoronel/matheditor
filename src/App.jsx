@@ -7,7 +7,7 @@ import { ActionButtons } from './components/ActionButtons';
 import { DropZone } from './components/DropZone';
 import { SvgPicker } from './components/SvgPicker';
 import { EXAMPLES } from './data/examples';
-import { buildExportSvg } from './utils/svgUtils';
+import { buildExportSvg, applyPtDimensions } from './utils/svgUtils';
 import { parseSvgForLatex } from './utils/svgLoader';
 import { extractSvgsFromDoc, DOC_EXTENSIONS } from './utils/docUtils';
 import { useMathJax } from './hooks/useMathJax';
@@ -20,15 +20,18 @@ export default function App() {
   const [previewError,     setPreviewError]    = useState('');
   const [status,           setStatusState]     = useState({ message: '', type: '' });
   const [svgPicker,        setSvgPicker]       = useState([]);
+  const [fontSize,         setFontSize]        = useState(12);
 
   const mjReady     = useMathJax();
   const initialised = useRef(false);
+  const fontSizeRef = useRef(12);
+  const latexInputRef = useRef('');
 
   const setStatus = useCallback((message, type = '') => {
     setStatusState({ message, type });
   }, []);
 
-  const renderLatex = useCallback((latex) => {
+  const renderLatex = useCallback((latex, pt = fontSizeRef.current) => {
     const trimmed = latex.trim();
 
     if (!trimmed) {
@@ -56,9 +59,10 @@ export default function App() {
       if (!svgEl) throw new Error('MathJax no generó ningún SVG');
 
       setCurrentLatex(trimmed);
-      setCurrentSvgString(buildExportSvg(svgEl, trimmed));
+      setCurrentSvgString(buildExportSvg(svgEl, trimmed, pt));
 
       const preview = svgEl.cloneNode(true);
+      applyPtDimensions(preview, pt);
       preview.style.cssText = 'max-width:100%; max-height:220px; height:auto;';
       setPreviewSvgHtml(preview.outerHTML);
       setPreviewError('');
@@ -76,10 +80,17 @@ export default function App() {
     if (mjReady && !initialised.current) {
       initialised.current = true;
       const src = EXAMPLES[0].src;
+      latexInputRef.current = src;
       setLatexInput(src);
       renderLatex(src);
     }
   }, [mjReady, renderLatex]);
+
+  const handleFontSizeChange = useCallback((pt) => {
+    fontSizeRef.current = pt;
+    setFontSize(pt);
+    if (latexInputRef.current.trim()) renderLatex(latexInputRef.current, pt);
+  }, [renderLatex]);
 
   const handleDownload = useCallback(() => {
     if (!currentSvgString) { setStatus('Nada que descargar', 'err'); return; }
@@ -101,6 +112,7 @@ export default function App() {
   const loadSvgContent = useCallback((content, name = 'archivo.svg') => {
     const latex = parseSvgForLatex(content);
     if (latex) {
+      latexInputRef.current = latex;
       setLatexInput(latex);
       renderLatex(latex);
       setStatus('✓ LaTeX recuperado: ' + latex.substring(0, 60) + (latex.length > 60 ? '…' : ''), 'ok');
@@ -155,7 +167,7 @@ export default function App() {
         <div className="panels">
           <LatexInput
             value={latexInput}
-            onChange={setLatexInput}
+            onChange={v => { latexInputRef.current = v; setLatexInput(v); }}
             onRender={renderLatex}
           />
           <Preview
@@ -167,6 +179,8 @@ export default function App() {
 
         <ActionButtons
           onDownloadSvg={handleDownload}
+          fontSize={fontSize}
+          onFontSizeChange={handleFontSizeChange}
         />
 
         <div

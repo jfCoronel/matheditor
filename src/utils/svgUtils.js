@@ -25,9 +25,25 @@ export function encodeLatexId(latex) {
   return 'lxs-' + b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-export function buildExportSvg(svgEl, latex) {
+// MathJax SVG viewBox units: 1 unit = 1/1000 em.
+// Given a desired font size in pt, we can convert viewBox dimensions to pt:
+//   width_pt  = viewBox_width  / 1000 * fontSize_pt
+//   height_pt = viewBox_height / 1000 * fontSize_pt
+function applyPtDimensions(svgEl, fontSize) {
+  const vb = svgEl.getAttribute('viewBox');
+  if (!vb) return;
+  const parts = vb.trim().split(/[\s,]+/).map(Number);
+  if (parts.length !== 4 || parts.some(isNaN)) return;
+  const [, , vbW, vbH] = parts;
+  svgEl.setAttribute('width',  `${(vbW / 1000 * fontSize).toFixed(3)}pt`);
+  svgEl.setAttribute('height', `${(vbH / 1000 * fontSize).toFixed(3)}pt`);
+}
+
+export function buildExportSvg(svgEl, latex, fontSize = 12) {
   const ns    = 'http://www.w3.org/2000/svg';
   const clone = svgEl.cloneNode(true);
+
+  applyPtDimensions(clone, fontSize);
 
   clone.setAttribute('xmlns',       ns);
   clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
@@ -46,6 +62,8 @@ export function buildExportSvg(svgEl, latex) {
   // to white/undefined. Replace it with an explicit black before exporting.
   return new XMLSerializer().serializeToString(clone).replace(/currentColor/g, 'black');
 }
+
+export { applyPtDimensions };
 
 export async function svgToPngBlob(svgString, scale = 3) {
   const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
