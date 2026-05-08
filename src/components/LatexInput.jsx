@@ -1,32 +1,26 @@
-import { useRef, useMemo, useEffect, useState } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { StreamLanguage } from '@codemirror/language';
 import { stex } from '@codemirror/legacy-modes/mode/stex';
 import { autocompletion } from '@codemirror/autocomplete';
 import { keymap } from '@codemirror/view';
 import { Prec } from '@codemirror/state';
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
+import { solarizedLightInit, solarizedDarkInit } from '@uiw/codemirror-theme-solarized';
+import { tags as t } from '@lezer/highlight';
 import { EXAMPLES, ASCII_EXAMPLES } from '../data/examples';
 import { latexCompletionSource } from '../data/latexCompletions';
 import { asciimathCompletionSource } from '../data/asciimathCompletions';
+import { asciimathLanguage } from '../data/asciimathMode';
 
-function useDarkMode() {
-  const [dark, setDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = e => setDark(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-  return dark;
-}
+const bracketStyle = { tag: t.bracket, color: '#CB4B16', fontWeight: '600' };
 
-export function LatexInput({ value, onChange, onRender, inputMode, onModeChange }) {
+const themeDark  = solarizedDarkInit ({ styles: [bracketStyle] });
+const themeLight = solarizedLightInit({ styles: [bracketStyle] });
+
+export function LatexInput({ value, onChange, onRender, inputMode, onModeChange, dark }) {
   const debounceRef = useRef(null);
   const onRenderRef = useRef(onRender);
   useEffect(() => { onRenderRef.current = onRender; }, [onRender]);
-
-  const dark = useDarkMode();
 
   const latexExtensions = useMemo(() => [
     StreamLanguage.define(stex),
@@ -38,6 +32,7 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange 
   ], []);
 
   const asciimathExtensions = useMemo(() => [
+    asciimathLanguage,
     autocompletion({ override: [asciimathCompletionSource] }),
     Prec.highest(keymap.of([{
       key: 'Ctrl-Enter', mac: 'Cmd-Enter',
@@ -94,7 +89,7 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange 
       <CodeMirror
         value={value}
         onChange={handleChange}
-        theme={dark ? githubDark : githubLight}
+        theme={dark ? themeDark : themeLight}
         extensions={inputMode === 'asciimath' ? asciimathExtensions : latexExtensions}
         basicSetup={{
           lineNumbers: false,

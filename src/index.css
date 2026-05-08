@@ -21,22 +21,20 @@
   --font-sans:   system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg:          #1c1c1a;
-    --bg-2:        #252523;
-    --bg-3:        #2e2e2c;
-    --text:        #ebebea;
-    --text-2:      #aaaaaa;
-    --text-3:      #666664;
-    --border:      rgba(255,255,255,0.12);
-    --border-2:    rgba(255,255,255,0.22);
-    --info-bg:     #0c2540;
-    --info-text:   #85b7eb;
-    --info-border: #185fa5;
-    --ok:          #5dca9a;
-    --err:         #f09595;
-  }
+html.dark {
+  --bg:          #1c1c1a;
+  --bg-2:        #252523;
+  --bg-3:        #2e2e2c;
+  --text:        #ebebea;
+  --text-2:      #aaaaaa;
+  --text-3:      #666664;
+  --border:      rgba(255,255,255,0.12);
+  --border-2:    rgba(255,255,255,0.22);
+  --info-bg:     #0c2540;
+  --info-text:   #85b7eb;
+  --info-border: #185fa5;
+  --ok:          #5dca9a;
+  --err:         #f09595;
 }
 
 body {
@@ -77,6 +75,28 @@ header h1 {
   border: 0.5px solid var(--border);
   border-radius: var(--radius-md);
   padding: 2px 8px;
+}
+
+/* ── Theme toggle button ──────────────────────────────────── */
+.theme-toggle {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0.5px solid var(--border-2);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: var(--bg-2);
+  color: var(--text);
 }
 
 /* ── Main layout ──────────────────────────────────────────── */

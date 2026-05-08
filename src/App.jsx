@@ -23,6 +23,14 @@ export default function App() {
   const [fontSize,         setFontSize]        = useState(12);
   const [inputMode,        setInputMode]       = useState('tex');
 
+  const [dark, setDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', dark);
+  }, [dark]);
+
+  const toggleDark = useCallback(() => setDark(d => !d), []);
+
   const mjReady      = useMathJax();
   const initialised  = useRef(false);
   const fontSizeRef  = useRef(12);
@@ -187,7 +195,7 @@ export default function App() {
 
   return (
     <>
-      <Header />
+      <Header dark={dark} onToggleDark={toggleDark} />
       <main>
         <div className="panels">
           <LatexInput
@@ -196,6 +204,7 @@ export default function App() {
             onRender={renderLatex}
             inputMode={inputMode}
             onModeChange={handleModeChange}
+            dark={dark}
           />
           <Preview
             mjReady={mjReady}
