@@ -52,8 +52,8 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange,
 
   const examples = inputMode === 'asciimath' ? ASCII_EXAMPLES : EXAMPLES;
   const placeholder = inputMode === 'asciimath'
-    ? 'int_0^oo e^(-x^2) dx = sqrt(pi)/2'
-    : '\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}';
+    ? 'Escribe tu ecuación en ASCIIMath aquí... Por ejemplo: E = m c^2'
+    : 'Escribe tu ecuación en LaTeX aquí... Por ejemplo: E = mc^2';
 
   function handleExample(src) {
     onChange(src);
