@@ -212,6 +212,7 @@ main {
 /* ── Examples dropdown ────────────────────────────────────── */
 .ex-select {
   margin-left: auto;
+  margin-right: 0;
   font-size: 12px;
   padding: 3px 8px;
   background: var(--bg-2);
@@ -225,6 +226,22 @@ main {
 }
 
 .ex-select:hover, .ex-select:focus { border-color: var(--border-2); }
+
+.clear-btn {
+  margin-left: 6px;
+  padding: 4px 7px;
+  background: var(--bg-2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-2);
+  cursor: pointer;
+  line-height: 0;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.clear-btn:hover { background: #c0392b; border-color: #c0392b; color: #fff; }
 
 /* ── Preview area ─────────────────────────────────────────── */
 #preview-box {

@@ -75,6 +75,19 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange,
             onClick={() => onModeChange('asciimath')}
           >ASCIIMath</button>
         </div>
+        <button
+          className="clear-btn"
+          title="Borrar contenido"
+          onClick={() => { onChange(''); clearTimeout(debounceRef.current); onRenderRef.current(''); }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 6h18"/>
+            <path d="M8 6V4h8v2"/>
+            <path d="M19 6l-.867 12.142A2 2 0 0 1 16.138 20H7.862a2 2 0 0 1-1.995-1.858L5 6"/>
+            <line x1="10" y1="11" x2="10" y2="17"/>
+            <line x1="14" y1="11" x2="14" y2="17"/>
+          </svg>
+        </button>
         <select
           className="ex-select"
           value=""
