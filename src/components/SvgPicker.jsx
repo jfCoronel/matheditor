@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function svgToDataUri(content) {
   return 'data:image/svg+xml;charset=utf-8,' +
@@ -6,6 +7,7 @@ function svgToDataUri(content) {
 }
 
 function PickerItem({ svg, onSelect }) {
+  const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
   const uri = useMemo(() => svgToDataUri(svg.content), [svg.content]);
 
@@ -19,14 +21,14 @@ function PickerItem({ svg, onSelect }) {
           <span className="svg-picker-name">{svg.name}</span>
           {svg.latex
             ? <span className="svg-picker-latex">{svg.latex.length > 60 ? svg.latex.substring(0, 60) + '…' : svg.latex}</span>
-            : <span className="svg-picker-none">sin metadatos LaTeX</span>
+            : <span className="svg-picker-none">{t.noLatexMeta}</span>
           }
         </div>
       </button>
       {!svg.latex && (
         <button
           className="svg-picker-debug"
-          title="Ver contenido SVG (diagnóstico)"
+          title={t.viewSvgContent}
           onClick={() => setExpanded(v => !v)}
         >
           <i className={`ti ti-${expanded ? 'chevron-up' : 'code'}`} aria-hidden="true" />
@@ -40,11 +42,12 @@ function PickerItem({ svg, onSelect }) {
 }
 
 export function SvgPicker({ items, onSelect, onClose }) {
+  const { t } = useLanguage();
   return (
     <div className="svg-picker">
       <div className="svg-picker-header">
-        <span>Selecciona la ecuación a recuperar</span>
-        <button className="svg-picker-close" onClick={onClose} aria-label="Cerrar">
+        <span>{t.selectEquation}</span>
+        <button className="svg-picker-close" onClick={onClose} aria-label={t.close}>
           <i className="ti ti-x" aria-hidden="true" />
         </button>
       </div>

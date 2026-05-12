@@ -11,8 +11,10 @@ import { buildExportSvg, applyPtDimensions } from './utils/svgUtils';
 import { parseSvgForLatex } from './utils/svgLoader';
 import { extractSvgsFromDoc, DOC_EXTENSIONS } from './utils/docUtils';
 import { useMathJax } from './hooks/useMathJax';
+import { useLanguage } from './i18n/LanguageContext';
 
 export default function App() {
+  const { t } = useLanguage();
   const [latexInput,       setLatexInput]      = useState('');
   const [currentSvgString, setCurrentSvgString] = useState('');
   const [currentLatex,     setCurrentLatex]    = useState('');
@@ -54,7 +56,7 @@ export default function App() {
     }
 
     if (!window.MathJax?.tex2svg) {
-      setStatus('MathJax aún no está listo...', '');
+      setStatus(t.mathJaxNotReady, '');
       return;
     }
 
@@ -62,19 +64,19 @@ export default function App() {
       const renderFn = inputModeRef.current === 'asciimath'
         ? window.MathJax.asciimath2svg
         : window.MathJax.tex2svg;
-      if (!renderFn) { setStatus('MathJax aún no está listo...', ''); return; }
+      if (!renderFn) { setStatus(t.mathJaxNotReady, ''); return; }
       const container = renderFn.call(window.MathJax, trimmed, { display: true });
 
       if (container.querySelector('[data-mml-node="merror"]')) {
         throw new Error(
           inputModeRef.current === 'asciimath'
-            ? 'Sintaxis ASCIIMath inválida — revisa la expresión'
-            : 'Sintaxis LaTeX inválida — revisa la expresión'
+            ? t.invalidAsciimath
+            : t.invalidLatex
         );
       }
 
       const svgEl = container.querySelector('svg');
-      if (!svgEl) throw new Error('MathJax no generó ningún SVG');
+      if (!svgEl) throw new Error(t.noSvgGenerated);
 
       setCurrentLatex(trimmed);
       setCurrentSvgString(buildExportSvg(svgEl, trimmed, pt, inputModeRef.current));
@@ -85,14 +87,14 @@ export default function App() {
       setPreviewSvgHtml(preview.outerHTML);
       setPreviewError('');
 
-      setStatus(`✓ Renderizado · ${trimmed.length} chars · SVG listo para exportar`, 'ok');
+      setStatus(t.rendered(trimmed.length), 'ok');
     } catch (e) {
       setPreviewSvgHtml('');
       setPreviewError(e.message);
       setCurrentSvgString('');
       setStatus(e.message, 'err');
     }
-  }, [setStatus]);
+  }, [setStatus, t]);
 
   useEffect(() => {
     if (mjReady && !initialised.current) {
@@ -123,12 +125,12 @@ export default function App() {
   }, []);
 
   const handleDownload = useCallback(() => {
-    if (!currentSvgString) { setStatus('Nada que descargar', 'err'); return; }
+    if (!currentSvgString) { setStatus(t.nothingToDownload, 'err'); return; }
 
     const safeName = currentLatex
       .replace(/[^a-zA-Z0-9]/g, '_')
       .substring(0, 30)
-      .replace(/_+$/g, '') || 'ecuacion';
+      .replace(/_+$/g, '') || t.defaultEquationName;
 
     const blob = new Blob([currentSvgString], { type: 'image/svg+xml' });
     const a    = document.createElement('a');
@@ -136,8 +138,8 @@ export default function App() {
     a.download = `eq_${safeName}.svg`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    setStatus('✓ Descargado: eq_' + safeName + '.svg', 'ok');
-  }, [currentSvgString, currentLatex, setStatus]);
+    setStatus(t.downloaded(safeName), 'ok');
+  }, [currentSvgString, currentLatex, setStatus, t]);
 
   const loadSvgContent = useCallback((content, name = 'archivo.svg') => {
     const result = parseSvgForLatex(content);
@@ -148,31 +150,31 @@ export default function App() {
       latexInputRef.current = formula;
       setLatexInput(formula);
       renderLatex(formula);
-      setStatus('✓ Fórmula recuperada: ' + formula.substring(0, 60) + (formula.length > 60 ? '…' : ''), 'ok');
+      setStatus(t.formulaRecovered(formula.substring(0, 60) + (formula.length > 60 ? '…' : '')), 'ok');
     } else {
-      setStatus(`"${name}" no contiene metadatos de fórmula (no fue generado con este editor).`, 'err');
+      setStatus(t.noFormulaMetadata(name), 'err');
     }
-  }, [renderLatex, setStatus]);
+  }, [renderLatex, setStatus, t]);
 
   const handleLoadFile = useCallback((file) => {
     if (!file) return;
     if (!file.name.toLowerCase().endsWith('.svg') && file.type !== 'image/svg+xml') {
-      setStatus('Selecciona un archivo .svg', 'err');
+      setStatus(t.selectSvgFile, 'err');
       return;
     }
     const reader = new FileReader();
-    reader.onload  = e => { try { loadSvgContent(e.target.result, file.name); } catch (err) { setStatus('Error al analizar el SVG: ' + err.message, 'err'); } };
-    reader.onerror = () => setStatus('Error al leer el archivo.', 'err');
+    reader.onload  = e => { try { loadSvgContent(e.target.result, file.name); } catch (err) { setStatus(t.errorParsingSvg(err.message), 'err'); } };
+    reader.onerror = () => setStatus(t.errorReadingFile, 'err');
     reader.readAsText(file);
-  }, [loadSvgContent, setStatus]);
+  }, [loadSvgContent, setStatus, t]);
 
   const handleLoadDoc = useCallback(async (file) => {
-    setStatus('Extrayendo SVGs del documento…', '');
+    setStatus(t.extractingSvgs, '');
     setSvgPicker([]);
     try {
       const svgs = await extractSvgsFromDoc(file);
       if (svgs.length === 0) {
-        setStatus('No se encontraron SVGs en el documento.', 'err');
+        setStatus(t.noSvgsFound, 'err');
         return;
       }
       if (svgs.length === 1) {
@@ -180,11 +182,11 @@ export default function App() {
         return;
       }
       setSvgPicker(svgs);
-      setStatus(`Se encontraron ${svgs.length} SVGs en el documento — selecciona uno:`, '');
+      setStatus(t.svgsFound(svgs.length), '');
     } catch (e) {
-      setStatus('Error al procesar el documento: ' + e.message, 'err');
+      setStatus(t.errorProcessingDoc(e.message), 'err');
     }
-  }, [loadSvgContent, setStatus]);
+  }, [loadSvgContent, setStatus, t]);
 
   const handleLoadAny = useCallback((file) => {
     if (!file) return;

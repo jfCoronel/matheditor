@@ -1,17 +1,29 @@
+import { useLanguage } from '../i18n/LanguageContext';
+
 export function Header({ dark, onToggleDark }) {
+  const { t, lang, toggleLang } = useLanguage();
+
   return (
     <header>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="24" height="24" aria-hidden="true">
         <rect width="32" height="32" rx="6" fill="#185fa5"/>
         <text x="16" y="24" fontSize="22" textAnchor="middle" fill="white" fontFamily="Georgia, serif">∑</text>
       </svg>
-      <h1>Editor de ecuaciones → SVG</h1>
+      <h1>{t.appTitle}</h1>
       <span className="badge">LaTeX · ASCIIMath · SVG</span>
+      <button
+        className="lang-toggle"
+        onClick={toggleLang}
+        title={t.switchLanguage}
+        aria-label={t.switchLanguage}
+      >
+        {lang === 'es' ? 'EN' : 'ES'}
+      </button>
       <button
         className="theme-toggle"
         onClick={onToggleDark}
-        aria-label={dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-        title={dark ? 'Modo claro' : 'Modo oscuro'}
+        aria-label={dark ? t.toggleToLight : t.toggleToDark}
+        title={dark ? t.modeLight : t.modeDark}
       >
         {dark ? (
           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

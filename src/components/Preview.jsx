@@ -1,11 +1,14 @@
+import { useLanguage } from '../i18n/LanguageContext';
+
 export function Preview({ mjReady, svgHtml, error }) {
+  const { t } = useLanguage();
   let content;
 
   if (!mjReady) {
     content = (
       <div className="mj-loading">
         <i className="ti ti-loader" aria-hidden="true" />
-        Cargando MathJax...
+        {t.loadingMathJax}
       </div>
     );
   } else if (error) {
@@ -19,12 +22,12 @@ export function Preview({ mjReady, svgHtml, error }) {
   } else if (svgHtml) {
     content = <div dangerouslySetInnerHTML={{ __html: svgHtml }} />;
   } else {
-    content = <span className="preview-placeholder">Escribe una ecuación...</span>;
+    content = <span className="preview-placeholder">{t.writePlaceholder}</span>;
   }
 
   return (
     <div className="panel">
-      <div className="panel-label">Vista previa</div>
+      <div className="panel-label">{t.panelPreview}</div>
       <div id="preview-box">{content}</div>
     </div>
   );

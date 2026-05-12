@@ -1,4 +1,5 @@
 import { useRef, useMemo, useEffect } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import CodeMirror from '@uiw/react-codemirror';
 import { StreamLanguage } from '@codemirror/language';
 import { stex } from '@codemirror/legacy-modes/mode/stex';
@@ -8,8 +9,8 @@ import { Prec } from '@codemirror/state';
 import { solarizedLightInit, solarizedDarkInit } from '@uiw/codemirror-theme-solarized';
 import { tags as t } from '@lezer/highlight';
 import { EXAMPLES, ASCII_EXAMPLES } from '../data/examples';
-import { latexCompletionSource } from '../data/latexCompletions';
-import { asciimathCompletionSource } from '../data/asciimathCompletions';
+import { makeLatexCompletionSource } from '../data/latexCompletions';
+import { makeAsciimathCompletionSource } from '../data/asciimathCompletions';
 import { asciimathLanguage } from '../data/asciimathMode';
 
 const bracketStyle = { tag: t.bracket, color: '#CB4B16', fontWeight: '600' };
@@ -18,27 +19,28 @@ const themeDark  = solarizedDarkInit ({ styles: [bracketStyle] });
 const themeLight = solarizedLightInit({ styles: [bracketStyle] });
 
 export function LatexInput({ value, onChange, onRender, inputMode, onModeChange, dark }) {
+  const { t, lang } = useLanguage();
   const debounceRef = useRef(null);
   const onRenderRef = useRef(onRender);
   useEffect(() => { onRenderRef.current = onRender; }, [onRender]);
 
   const latexExtensions = useMemo(() => [
     StreamLanguage.define(stex),
-    autocompletion({ override: [latexCompletionSource] }),
+    autocompletion({ override: [makeLatexCompletionSource(lang)] }),
     Prec.highest(keymap.of([{
       key: 'Ctrl-Enter', mac: 'Cmd-Enter',
       run() { clearTimeout(debounceRef.current); onRenderRef.current(editorValueRef.current); return true; },
     }])),
-  ], []);
+  ], [lang]);
 
   const asciimathExtensions = useMemo(() => [
     asciimathLanguage,
-    autocompletion({ override: [asciimathCompletionSource] }),
+    autocompletion({ override: [makeAsciimathCompletionSource(lang)] }),
     Prec.highest(keymap.of([{
       key: 'Ctrl-Enter', mac: 'Cmd-Enter',
       run() { clearTimeout(debounceRef.current); onRenderRef.current(editorValueRef.current); return true; },
     }])),
-  ], []);
+  ], [lang]);
 
   const editorValueRef = useRef(value);
   useEffect(() => { editorValueRef.current = value; }, [value]);
@@ -51,9 +53,7 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange,
   }
 
   const examples = inputMode === 'asciimath' ? ASCII_EXAMPLES : EXAMPLES;
-  const placeholder = inputMode === 'asciimath'
-    ? 'Escribe tu ecuación en ASCIIMath aquí... Por ejemplo: E = m c^2'
-    : 'Escribe tu ecuación en LaTeX aquí... Por ejemplo: E = mc^2';
+  const placeholder = inputMode === 'asciimath' ? t.placeholderAsciimath : t.placeholderLatex;
 
   function handleExample(src) {
     onChange(src);
@@ -64,7 +64,7 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange,
   return (
     <div className="panel">
       <div className="panel-label-row">
-        <span className="panel-label" style={{ margin: 0 }}>Fuente</span>
+        <span className="panel-label" style={{ margin: 0 }}>{t.panelSource}</span>
         <div className="mode-toggle">
           <button
             className={`mode-btn${inputMode === 'tex' ? ' active' : ''}`}
@@ -77,7 +77,7 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange,
         </div>
         <button
           className="clear-btn"
-          title="Borrar contenido"
+          title={t.clearContent}
           onClick={() => { onChange(''); clearTimeout(debounceRef.current); onRenderRef.current(''); }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round">
@@ -93,7 +93,7 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange,
           value=""
           onChange={e => { if (e.target.value) handleExample(e.target.value); }}
         >
-          <option value="" disabled>Ejemplos de ecuaciones…</option>
+          <option value="" disabled>{t.examplesPlaceholder}</option>
           {examples.map(ex => (
             <option key={ex.label} value={ex.src}>{ex.label}</option>
           ))}

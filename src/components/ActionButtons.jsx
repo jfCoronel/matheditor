@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function FontSizeInput({ fontSize, onFontSizeChange }) {
+  const { t } = useLanguage();
   const [draft, setDraft] = useState(String(fontSize));
   const [invalid, setInvalid] = useState(false);
 
@@ -23,7 +25,7 @@ function FontSizeInput({ fontSize, onFontSizeChange }) {
 
   return (
     <label className="font-size-control">
-      <span>Tamaño</span>
+      <span>{t.fontSize}</span>
       <input
         type="text"
         inputMode="numeric"
@@ -39,11 +41,12 @@ function FontSizeInput({ fontSize, onFontSizeChange }) {
 }
 
 export function ActionButtons({ onDownloadSvg, fontSize, onFontSizeChange }) {
+  const { t } = useLanguage();
   return (
     <div className="actions">
       <button className="act-btn primary" onClick={onDownloadSvg}>
         <i className="ti ti-download" aria-hidden="true" />
-        Descargar SVG
+        {t.downloadSvg}
       </button>
       <FontSizeInput fontSize={fontSize} onFontSizeChange={onFontSizeChange} />
     </div>

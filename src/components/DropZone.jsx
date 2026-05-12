@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export function DropZone({ onFile }) {
+  const { t } = useLanguage();
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -40,7 +42,7 @@ export function DropZone({ onFile }) {
         className={`drop-zone${isDragOver ? ' drag-over' : ''}`}
         role="button"
         tabIndex={0}
-        aria-label="Arrastra un SVG aquí para recuperar el LaTeX"
+        aria-label={t.dropZoneLabel}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -48,7 +50,7 @@ export function DropZone({ onFile }) {
         onKeyDown={handleKeyDown}
       >
         <i className="ti ti-file-upload" aria-hidden="true" />
-        Arrastra aquí un <strong>.svg</strong> o un documento <strong>.odt · .odp · .docx · .pptx</strong> para extraer las ecuaciones
+        {t.dropZonePre} <strong>.svg</strong> {t.dropZoneMid} <strong>.odt · .odp · .docx · .pptx</strong> {t.dropZonePost}
       </div>
       <input
         ref={fileInputRef}

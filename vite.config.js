@@ -6,7 +6,7 @@ const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
 export default defineConfig({
   plugins: [react()],
-  base: '/equation-svg-editor/',
+  base: '/matheditor/',
   define: {
     __APP_VERSION__: JSON.stringify(version),
   },
