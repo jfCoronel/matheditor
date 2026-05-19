@@ -33,18 +33,22 @@ export default function App() {
 
   const toggleDark = useCallback(() => setDark(d => !d), []);
 
-  const mjReady      = useMathJax();
-  const initialised  = useRef(false);
-  const fontSizeRef  = useRef(12);
+  const [font, setFont] = useState(() => localStorage.getItem('mj-font') || '');
+
+  const mjReady       = useMathJax();
+  const initialised   = useRef(false);
+  const fontSizeRef   = useRef(12);
   const latexInputRef = useRef('');
-  const inputModeRef = useRef('tex');
+  const inputModeRef  = useRef('tex');
+  const renderIdRef   = useRef(0);
 
   const setStatus = useCallback((message, type = '') => {
     setStatusState({ message, type });
   }, []);
 
-  const renderLatex = useCallback((latex, pt = fontSizeRef.current) => {
+  const renderLatex = useCallback(async (latex, pt = fontSizeRef.current) => {
     const trimmed = latex.trim();
+    const myId = ++renderIdRef.current;
 
     if (!trimmed) {
       setPreviewSvgHtml('');
@@ -55,17 +59,19 @@ export default function App() {
       return;
     }
 
-    if (!window.MathJax?.tex2svg) {
+    if (!window.MathJax?.tex2svgPromise) {
       setStatus(t.mathJaxNotReady, '');
       return;
     }
 
     try {
       const renderFn = inputModeRef.current === 'asciimath'
-        ? window.MathJax.asciimath2svg
-        : window.MathJax.tex2svg;
+        ? window.MathJax.asciimath2svgPromise
+        : window.MathJax.tex2svgPromise;
       if (!renderFn) { setStatus(t.mathJaxNotReady, ''); return; }
-      const container = renderFn.call(window.MathJax, trimmed, { display: true });
+
+      const container = await renderFn.call(window.MathJax, trimmed, { display: true });
+      if (renderIdRef.current !== myId) return;
 
       if (container.querySelector('[data-mml-node="merror"]')) {
         throw new Error(
@@ -89,6 +95,7 @@ export default function App() {
 
       setStatus(t.rendered(trimmed.length), 'ok');
     } catch (e) {
+      if (renderIdRef.current !== myId) return;
       setPreviewSvgHtml('');
       setPreviewError(e.message);
       setCurrentSvgString('');
@@ -99,12 +106,36 @@ export default function App() {
   useEffect(() => {
     if (mjReady && !initialised.current) {
       initialised.current = true;
-      const src = EXAMPLES[0].src;
+      let src = EXAMPLES[0].src;
+      const saved = localStorage.getItem('mj-restore');
+      if (saved) {
+        try {
+          const { formula, mode } = JSON.parse(saved);
+          localStorage.removeItem('mj-restore');
+          if (mode && mode !== 'tex') {
+            inputModeRef.current = mode;
+            setInputMode(mode);
+          }
+          src = formula;
+        } catch { /* ignore */ }
+      }
       latexInputRef.current = src;
       setLatexInput(src);
       renderLatex(src);
     }
   }, [mjReady, renderLatex]);
+
+  const handleFontChange = useCallback((newFont) => {
+    if (latexInputRef.current.trim()) {
+      localStorage.setItem('mj-restore', JSON.stringify({
+        formula: latexInputRef.current,
+        mode: inputModeRef.current,
+      }));
+    }
+    localStorage.setItem('mj-font', newFont);
+    setFont(newFont);
+    window.location.reload();
+  }, []);
 
   const handleFontSizeChange = useCallback((pt) => {
     fontSizeRef.current = pt;
@@ -219,6 +250,8 @@ export default function App() {
           onDownloadSvg={handleDownload}
           fontSize={fontSize}
           onFontSizeChange={handleFontSizeChange}
+          font={font}
+          onFontChange={handleFontChange}
         />
 
         <div

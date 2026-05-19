@@ -1,6 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
 
+function mjFonts(t) {
+  return [
+    { value: '',                 label: `New CM (${t.fontDefault})` },
+    { value: 'mathjax-tex',     label: `TeX (${t.fontClassic})` },
+    { value: 'mathjax-stix2',   label: 'STIX2' },
+    { value: 'mathjax-termes',  label: 'Termes (Times)' },
+    { value: 'mathjax-pagella', label: 'Pagella (Palatino)' },
+    { value: 'mathjax-asana',   label: 'Asana' },
+    { value: 'mathjax-bonum',   label: 'Bonum (Bookman)' },
+    { value: 'mathjax-schola',  label: 'Schola' },
+    { value: 'mathjax-dejavu',  label: 'DejaVu' },
+    { value: 'mathjax-fira',    label: 'Fira (Sans)' },
+    { value: 'mathjax-modern',  label: 'Latin Modern' },
+  ];
+}
+
 function FontSizeInput({ fontSize, onFontSizeChange }) {
   const { t } = useLanguage();
   const [draft, setDraft] = useState(String(fontSize));
@@ -40,7 +56,26 @@ function FontSizeInput({ fontSize, onFontSizeChange }) {
   );
 }
 
-export function ActionButtons({ onDownloadSvg, fontSize, onFontSizeChange }) {
+function FontSelector({ font, onFontChange }) {
+  const { t } = useLanguage();
+  const fonts = mjFonts(t);
+  return (
+    <label className="font-size-control">
+      <span>{t.fontFace}</span>
+      <select
+        className="font-select"
+        value={font}
+        onChange={e => onFontChange(e.target.value)}
+      >
+        {fonts.map(f => (
+          <option key={f.value} value={f.value}>{f.label}</option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+export function ActionButtons({ onDownloadSvg, fontSize, onFontSizeChange, font, onFontChange }) {
   const { t } = useLanguage();
   return (
     <div className="actions">
@@ -49,6 +84,7 @@ export function ActionButtons({ onDownloadSvg, fontSize, onFontSizeChange }) {
         {t.downloadSvg}
       </button>
       <FontSizeInput fontSize={fontSize} onFontSizeChange={onFontSizeChange} />
+      <FontSelector font={font} onFontChange={onFontChange} />
     </div>
   );
 }

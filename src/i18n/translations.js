@@ -23,6 +23,9 @@ export const translations = {
     // ActionButtons
     downloadSvg: 'Descargar SVG',
     fontSize: 'Tamaño',
+    fontFace: 'Fuente',
+    fontDefault: 'defecto',
+    fontClassic: 'clásica',
 
     // SvgPicker
     selectEquation: 'Selecciona la ecuación a recuperar',
@@ -85,6 +88,9 @@ export const translations = {
     // ActionButtons
     downloadSvg: 'Download SVG',
     fontSize: 'Size',
+    fontFace: 'Font',
+    fontDefault: 'default',
+    fontClassic: 'classic',
 
     // SvgPicker
     selectEquation: 'Select the equation to recover',
