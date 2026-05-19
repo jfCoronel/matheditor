@@ -83,8 +83,9 @@ export function ActionButtons({ onDownloadSvg, fontSize, onFontSizeChange, font,
         <i className="ti ti-download" aria-hidden="true" />
         {t.downloadSvg}
       </button>
-      <FontSizeInput fontSize={fontSize} onFontSizeChange={onFontSizeChange} />
+      <span className="actions-spacer" />
       <FontSelector font={font} onFontChange={onFontChange} />
+      <FontSizeInput fontSize={fontSize} onFontSizeChange={onFontSizeChange} />
     </div>
   );
 }

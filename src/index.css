@@ -314,10 +314,13 @@ main {
 /* ── Action buttons ───────────────────────────────────────── */
 .actions {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 8px;
 }
+
+.actions-spacer { flex: 1; }
 
 .act-btn {
   display: inline-flex;
