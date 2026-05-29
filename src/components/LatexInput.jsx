@@ -24,6 +24,9 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange,
   const onRenderRef = useRef(onRender);
   useEffect(() => { onRenderRef.current = onRender; }, [onRender]);
 
+  const cmViewRef = useRef(null);
+  function focusEditor() { setTimeout(() => cmViewRef.current?.focus(), 0); }
+
   const latexExtensions = useMemo(() => [
     StreamLanguage.define(stex),
     autocompletion({ override: [makeLatexCompletionSource(lang)] }),
@@ -68,17 +71,17 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange,
         <div className="mode-toggle">
           <button
             className={`mode-btn${inputMode === 'tex' ? ' active' : ''}`}
-            onClick={() => onModeChange('tex')}
+            onClick={() => { onModeChange('tex'); focusEditor(); }}
           >LaTeX</button>
           <button
             className={`mode-btn${inputMode === 'asciimath' ? ' active' : ''}`}
-            onClick={() => onModeChange('asciimath')}
+            onClick={() => { onModeChange('asciimath'); focusEditor(); }}
           >ASCIIMath</button>
         </div>
         <button
           className="clear-btn"
           title={t.clearContent}
-          onClick={() => { onChange(''); clearTimeout(debounceRef.current); onRenderRef.current(''); }}
+          onClick={() => { onChange(''); clearTimeout(debounceRef.current); onRenderRef.current(''); focusEditor(); }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 6h18"/>
@@ -102,6 +105,7 @@ export function LatexInput({ value, onChange, onRender, inputMode, onModeChange,
       <CodeMirror
         value={value}
         onChange={handleChange}
+        onCreateEditor={(view) => { cmViewRef.current = view; }}
         theme={dark ? themeDark : themeLight}
         extensions={inputMode === 'asciimath' ? asciimathExtensions : latexExtensions}
         basicSetup={{

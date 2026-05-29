@@ -75,11 +75,14 @@ function FontSelector({ font, onFontChange }) {
   );
 }
 
+const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
+const downloadShortcut = isMac ? '⌘S' : 'Ctrl+S';
+
 export function ActionButtons({ onDownloadSvg, fontSize, onFontSizeChange, font, onFontChange }) {
   const { t } = useLanguage();
   return (
     <div className="actions">
-      <button className="act-btn primary" onClick={onDownloadSvg}>
+      <button className="act-btn primary" onClick={onDownloadSvg} data-shortcut={downloadShortcut}>
         <i className="ti ti-download" aria-hidden="true" />
         {t.downloadSvg}
       </button>

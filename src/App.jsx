@@ -3,7 +3,6 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { LatexInput } from './components/LatexInput';
 import { Preview } from './components/Preview';
-import { ActionButtons } from './components/ActionButtons';
 import { DropZone } from './components/DropZone';
 import { SvgPicker } from './components/SvgPicker';
 import { EXAMPLES } from './data/examples';
@@ -35,12 +34,14 @@ export default function App() {
 
   const [font, setFont] = useState(() => localStorage.getItem('mj-font') || '');
 
-  const mjReady       = useMathJax();
-  const initialised   = useRef(false);
-  const fontSizeRef   = useRef(12);
-  const latexInputRef = useRef('');
-  const inputModeRef  = useRef('tex');
-  const renderIdRef   = useRef(0);
+  const mjReady          = useMathJax();
+  const initialised      = useRef(false);
+  const fontSizeRef      = useRef(12);
+  const latexInputRef    = useRef('');
+  const inputModeRef     = useRef('tex');
+  const renderIdRef      = useRef(0);
+  const handleDownloadRef = useRef(null);
+  const isDownloadingRef  = useRef(false);
 
   const setStatus = useCallback((message, type = '') => {
     setStatusState({ message, type });
@@ -155,22 +156,74 @@ export default function App() {
     setStatus('');
   }, []);
 
-  const handleDownload = useCallback(() => {
+  const handleDownload = useCallback(async () => {
+    if (isDownloadingRef.current) return;
     if (!currentSvgString) { setStatus(t.nothingToDownload, 'err'); return; }
+    isDownloadingRef.current = true;
 
     const safeName = currentLatex
       .replace(/[^a-zA-Z0-9]/g, '_')
       .substring(0, 30)
       .replace(/_+$/g, '') || t.defaultEquationName;
 
-    const blob = new Blob([currentSvgString], { type: 'image/svg+xml' });
-    const a    = document.createElement('a');
-    a.href     = URL.createObjectURL(blob);
-    a.download = `eq_${safeName}.svg`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    setStatus(t.downloaded(safeName), 'ok');
+    const suggestedName = `eq_${safeName}.svg`;
+
+    // showSaveFilePicker shows a native "Save As" dialog on Chrome/Edge.
+    // Safari declares the API but doesn't prompt for a filename, so we skip it there.
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    try {
+      if (window.showSaveFilePicker && !isSafari) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName,
+            types: [{ description: 'SVG Image', accept: { 'image/svg+xml': ['.svg'] } }],
+          });
+          try {
+            const writable = await handle.createWritable();
+            await writable.write(currentSvgString);
+            await writable.close();
+          } catch {
+            const blob = new Blob([currentSvgString], { type: 'image/svg+xml' });
+            const a    = document.createElement('a');
+            a.href     = URL.createObjectURL(blob);
+            a.download = handle.name;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+          }
+          setStatus(t.downloaded(handle.name), 'ok');
+        } catch (e) {
+          if (e.name !== 'AbortError') setStatus(e.message, 'err');
+        }
+      } else {
+        const userInput = window.prompt(t.saveAsPrompt, suggestedName);
+        if (userInput === null) return;
+        const chosen = (userInput.trim() || suggestedName).replace(/\.svg$/i, '') + '.svg';
+        const blob = new Blob([currentSvgString], { type: 'image/svg+xml' });
+        const a    = document.createElement('a');
+        a.href     = URL.createObjectURL(blob);
+        a.download = chosen;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        setStatus(t.downloaded(chosen), 'ok');
+      }
+    } finally {
+      isDownloadingRef.current = false;
+    }
   }, [currentSvgString, currentLatex, setStatus, t]);
+
+  handleDownloadRef.current = handleDownload;
+
+  useEffect(() => {
+    function onKeyDown(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        handleDownloadRef.current?.();
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const loadSvgContent = useCallback((content, name = 'archivo.svg') => {
     const result = parseSvgForLatex(content);
@@ -243,16 +296,13 @@ export default function App() {
             mjReady={mjReady}
             svgHtml={previewSvgHtml}
             error={previewError}
+            onDownloadSvg={handleDownload}
+            fontSize={fontSize}
+            onFontSizeChange={handleFontSizeChange}
+            font={font}
+            onFontChange={handleFontChange}
           />
         </div>
-
-        <ActionButtons
-          onDownloadSvg={handleDownload}
-          fontSize={fontSize}
-          onFontSizeChange={handleFontSizeChange}
-          font={font}
-          onFontChange={handleFontChange}
-        />
 
         <div
           id="status"

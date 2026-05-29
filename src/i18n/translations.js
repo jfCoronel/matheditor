@@ -16,12 +16,13 @@ export const translations = {
     placeholderAsciimath: 'Escribe tu ecuación en ASCIIMath aquí... Por ejemplo: E = m c^2',
 
     // Preview
-    panelPreview: 'Vista previa',
+    panelPreview: 'Imagen',
     loadingMathJax: 'Cargando MathJax...',
     writePlaceholder: 'Escribe una ecuación...',
 
     // ActionButtons
     downloadSvg: 'Descargar SVG',
+    saveAsPrompt: 'Nombre del archivo:',
     fontSize: 'Tamaño',
     fontFace: 'Fuente',
     fontDefault: 'defecto',
@@ -51,7 +52,7 @@ export const translations = {
     noSvgGenerated: 'MathJax no generó ningún SVG',
     rendered: (chars) => `✓ Renderizado · ${chars} chars · SVG listo para exportar`,
     nothingToDownload: 'Nada que descargar',
-    downloaded: (name) => `✓ Descargado: eq_${name}.svg`,
+    downloaded: (name) => `✓ Descargado: ${name}`,
     formulaRecovered: (formula) => `✓ Fórmula recuperada: ${formula}`,
     noFormulaMetadata: (name) => `"${name}" no contiene metadatos de fórmula (no fue generado con este editor).`,
     selectSvgFile: 'Selecciona un archivo .svg',
@@ -81,12 +82,13 @@ export const translations = {
     placeholderAsciimath: 'Type your ASCIIMath equation here... For example: E = m c^2',
 
     // Preview
-    panelPreview: 'Preview',
+    panelPreview: 'Image',
     loadingMathJax: 'Loading MathJax...',
     writePlaceholder: 'Type an equation...',
 
     // ActionButtons
     downloadSvg: 'Download SVG',
+    saveAsPrompt: 'File name:',
     fontSize: 'Size',
     fontFace: 'Font',
     fontDefault: 'default',
@@ -116,7 +118,7 @@ export const translations = {
     noSvgGenerated: 'MathJax did not generate any SVG',
     rendered: (chars) => `✓ Rendered · ${chars} chars · SVG ready to export`,
     nothingToDownload: 'Nothing to download',
-    downloaded: (name) => `✓ Downloaded: eq_${name}.svg`,
+    downloaded: (name) => `✓ Downloaded: ${name}`,
     formulaRecovered: (formula) => `✓ Formula recovered: ${formula}`,
     noFormulaMetadata: (name) => `"${name}" does not contain formula metadata (not generated with this editor).`,
     selectSvgFile: 'Select an .svg file',

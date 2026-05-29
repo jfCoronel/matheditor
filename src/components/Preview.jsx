@@ -1,6 +1,7 @@
 import { useLanguage } from '../i18n/LanguageContext';
+import { ActionButtons } from './ActionButtons';
 
-export function Preview({ mjReady, svgHtml, error }) {
+export function Preview({ mjReady, svgHtml, error, onDownloadSvg, fontSize, onFontSizeChange, font, onFontChange }) {
   const { t } = useLanguage();
   let content;
 
@@ -27,7 +28,16 @@ export function Preview({ mjReady, svgHtml, error }) {
 
   return (
     <div className="panel">
-      <div className="panel-label">{t.panelPreview}</div>
+      <div className="panel-label-row">
+        <div className="panel-label">{t.panelPreview}</div>
+        <ActionButtons
+          onDownloadSvg={onDownloadSvg}
+          fontSize={fontSize}
+          onFontSizeChange={onFontSizeChange}
+          font={font}
+          onFontChange={onFontChange}
+        />
+      </div>
       <div id="preview-box">{content}</div>
     </div>
   );
