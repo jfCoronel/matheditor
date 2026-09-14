@@ -45,6 +45,22 @@ export const translations = {
     dropZoneMid: 'o un documento',
     dropZonePost: 'para extraer las ecuaciones',
 
+    // ConvertDoc
+    convertDocButton: 'Convertir un documento',
+    convertingShort: 'Procesando…',
+    convertDocHint: 'Word (.docx) o Writer (.odt) · sustituye $$…$$ (LaTeX) y $$$…$$$ (AsciiMath) por imágenes SVG',
+    convertedSuffix: '_ecuaciones',
+    unsupportedDoc: (ext) => `Formato no soportado: .${ext} — solo .docx y .odt`,
+    convertingDoc: (name) => `Procesando ${name}…`,
+    convertingProgress: (done, total) => `Convirtiendo ecuaciones… ${done}/${total}`,
+    noEquationsInDoc: 'No se encontró ninguna ecuación entre $$…$$ ni $$$…$$$',
+    conversionDone: (ok, failed) => {
+      const hechas = `${ok} ${ok === 1 ? 'ecuación convertida' : 'ecuaciones convertidas'}`;
+      return failed
+        ? `${hechas} · ${failed} con ${failed === 1 ? 'error' : 'errores'}: revisa los comentarios del documento`
+        : `✓ ${hechas}`;
+    },
+
     // Footer
     developedBy: 'desarrollado por',
     renderedWith: 'Renderizado con',
@@ -119,6 +135,22 @@ export const translations = {
     dropZonePre: 'Drag a',
     dropZoneMid: 'or a',
     dropZonePost: 'document here to extract equations',
+
+    // ConvertDoc
+    convertDocButton: 'Convert a document',
+    convertingShort: 'Processing…',
+    convertDocHint: 'Word (.docx) or Writer (.odt) · replaces $$…$$ (LaTeX) and $$$…$$$ (AsciiMath) with SVG images',
+    convertedSuffix: '_equations',
+    unsupportedDoc: (ext) => `Unsupported format: .${ext} — only .docx and .odt`,
+    convertingDoc: (name) => `Processing ${name}…`,
+    convertingProgress: (done, total) => `Converting equations… ${done}/${total}`,
+    noEquationsInDoc: 'No equation found between $$…$$ or $$$…$$$',
+    conversionDone: (ok, failed) => {
+      const doneMsg = `${ok} equation${ok === 1 ? '' : 's'} converted`;
+      return failed
+        ? `${doneMsg} · ${failed} with error${failed === 1 ? '' : 's'}: check the comments in the document`
+        : `✓ ${doneMsg}`;
+    },
 
     // Footer
     developedBy: 'developed by',

@@ -25,6 +25,11 @@
         svg: {
           fontCache: 'local',
           scale: 1.1,
+          // MathJax 4 parte la matemática inline en varios <svg> por los puntos
+          // donde el renglón podría romper ('x + y = z' sale en tres trozos).
+          // Una ecuación incrustada como imagen no puede reflowear, y quedarse
+          // con el primer trozo perdería el resto sin avisar.
+          linebreaks: { inline: false },
         },
         startup: { typeset: false },
       };

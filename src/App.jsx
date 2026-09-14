@@ -5,6 +5,7 @@ import InstallPrompt from './components/InstallPrompt';
 import { LatexInput } from './components/LatexInput';
 import { Preview } from './components/Preview';
 import { DropZone } from './components/DropZone';
+import { ConvertDoc } from './components/ConvertDoc';
 import { SvgPicker } from './components/SvgPicker';
 import { EXAMPLES } from './data/examples';
 import { buildExportSvg, applyPtDimensions, injectFilenameInSvg } from './utils/svgUtils';
@@ -435,6 +436,8 @@ export default function App() {
         )}
 
         <DropZone onFiles={handleLoadFiles} />
+
+        <ConvertDoc mjReady={mjReady} font={font} onStatus={setStatus} />
       </main>
       <Footer />
     </>
