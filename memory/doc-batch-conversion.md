@@ -21,12 +21,21 @@ expresiones escritas en un documento a SVG, sustituyéndolas **en su sitio**.
   ignora a propósito, porque las fórmulas display suelen llevar su número de
   ecuación escrito a mano justo después (`$$ x^2 $$ (1)`).
 - Round-trip en ambos sentidos: expresión → SVG y SVG → expresión.
-- Orden de formatos: Word (docx) y LibreOffice Writer (odt) primero, PowerPoint al final.
+- Estado (versión 0.5.0, 2026-09-14): **hecho** Word (.docx) y Writer (.odt).
+  **Pendiente**: el camino inverso SVG → expresión, y después PowerPoint (.pptx)
+  e Impress (.odp).
 - Ante un error de render: **no** se convierte, la expresión se deja tal cual y se
   añade un comentario del documento con el mensaje de error anclado a ella.
 
 **Why:** son decisiones del usuario, no deducibles del código.
 
 **How to apply:** el núcleo de detección está en `src/utils/docxMath.js` (funciones
-puras, sin DOM, testeables en Node). PPTX es el caso caro porque no admite imagen
-inline dentro de un párrafo; ODT es el más barato porque no necesita PNG de respaldo.
+puras, sin DOM, testeables en Node) y lo comparten ambos inyectores. ODT resultó el
+más barato: sin PNG de respaldo, sin relaciones ni tipos de contenido, y los
+comentarios van inline con `<office:annotation>`.
+
+Las presentaciones (.pptx y .odp) son el caso caro y por eso van las últimas: **no
+existe la imagen en línea dentro de un párrafo**, así que hay que borrar el texto y
+colocar un marco flotante con coordenadas explícitas, y decidir esa posición no
+tiene respuesta obvia. El detector y `assignNames` se reutilizan tal cual; lo que
+hay que escribir entero es el colocador.
