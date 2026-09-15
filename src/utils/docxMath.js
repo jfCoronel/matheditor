@@ -26,6 +26,16 @@ const TYPOGRAPHY = [
   [/ /g,         ' '],
 ];
 
+// The inverse of scanFormulas: puts an equation back into the document as the
+// source text it came from. Both reverters (docx and odt) go through here so the
+// delimiters are written in exactly one place. The padding spaces are what people
+// write by hand and what the scanner trims away, so restoring them makes the
+// round trip land on the original text character for character.
+export function wrapFormula(source, mode) {
+  const d = DELIMITERS.find(x => x.mode === mode) ?? DELIMITERS[1];
+  return `${d.open} ${source} ${d.close}`;
+}
+
 export function normalizeTypography(str) {
   return TYPOGRAPHY.reduce((s, [re, to]) => s.replace(re, to), str);
 }

@@ -21,9 +21,11 @@ expresiones escritas en un documento a SVG, sustituyéndolas **en su sitio**.
   ignora a propósito, porque las fórmulas display suelen llevar su número de
   ecuación escrito a mano justo después (`$$ x^2 $$ (1)`).
 - Round-trip en ambos sentidos: expresión → SVG y SVG → expresión.
-- Estado (versión 0.5.0, 2026-09-14): **hecho** Word (.docx) y Writer (.odt).
-  **Pendiente**: el camino inverso SVG → expresión, y después PowerPoint (.pptx)
-  e Impress (.odp).
+- Nombres de salida (decidido 2026-09-15): `*_svg.docx`/`*_svg.odt` de ida y
+  `*_code.docx`/`*_code.odt` de vuelta, **junto al archivo original**, no en la
+  carpeta de descargas. El sufijo anterior se sustituye, no se acumula.
+- Estado (versión 0.6.0, 2026-09-15): **hecho** los dos sentidos en Word (.docx)
+  y Writer (.odt). **Pendiente**: PowerPoint (.pptx) e Impress (.odp).
 - Ante un error de render: **no** se convierte, la expresión se deja tal cual y se
   añade un comentario del documento con el mensaje de error anclado a ella.
 

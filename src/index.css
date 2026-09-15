@@ -478,12 +478,17 @@ main {
 #status.err { color: var(--err); }
 
 /* ── Drop zone ────────────────────────────────────────────── */
+.doc-convert-section {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 0.5px solid var(--border-2);
+}
+
 .doc-convert {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin-top: 10px;
 }
 
 .doc-convert .act-btn:disabled {

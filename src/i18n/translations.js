@@ -46,18 +46,31 @@ export const translations = {
     dropZonePost: 'para extraer las ecuaciones',
 
     // ConvertDoc
-    convertDocButton: 'Convertir un documento',
+    convertSectionTitle: 'Conversor automático de documentos',
+    convertToSvgButton: 'Código → SVG',
+    convertToCodeButton: 'SVG → código',
+    saveDocButton: 'Guardar documento',
     convertingShort: 'Procesando…',
-    convertDocHint: 'Word (.docx) o Writer (.odt) · sustituye $$…$$ (LaTeX) y $$$…$$$ (AsciiMath) por imágenes SVG',
-    convertedSuffix: '_ecuaciones',
+    convertDocHint: 'Word (.docx) o Writer (.odt) · $$…$$ (LaTeX) y $$$…$$$ (AsciiMath) ⇄ imágenes SVG · se guarda como *_svg o *_code junto al original',
     unsupportedDoc: (ext) => `Formato no soportado: .${ext} — solo .docx y .odt`,
     convertingDoc: (name) => `Procesando ${name}…`,
     convertingProgress: (done, total) => `Convirtiendo ecuaciones… ${done}/${total}`,
+    revertingProgress: (done, total) => `Recuperando ecuaciones… ${done}/${total}`,
     noEquationsInDoc: 'No se encontró ninguna ecuación entre $$…$$ ni $$$…$$$',
+    noSvgEquationsInDoc: 'No hay ninguna ecuación SVG de MathEditor que recuperar en este documento',
+    savedAs: (name) => `guardado como ${name}`,
+    saveCancelled: 'Guardado cancelado — el documento convertido sigue listo',
+    saveNeedsClick: (name) => `${name} listo — pulsa «Guardar documento» para elegir dónde`,
     conversionDone: (ok, failed) => {
       const hechas = `${ok} ${ok === 1 ? 'ecuación convertida' : 'ecuaciones convertidas'}`;
       return failed
         ? `${hechas} · ${failed} con ${failed === 1 ? 'error' : 'errores'}: revisa los comentarios del documento`
+        : `✓ ${hechas}`;
+    },
+    revertDone: (ok, skipped) => {
+      const hechas = `${ok} ${ok === 1 ? 'ecuación recuperada' : 'ecuaciones recuperadas'}`;
+      return skipped
+        ? `✓ ${hechas} · ${skipped} ${skipped === 1 ? 'imagen sin metadatos, intacta' : 'imágenes sin metadatos, intactas'}`
         : `✓ ${hechas}`;
     },
 
@@ -137,18 +150,31 @@ export const translations = {
     dropZonePost: 'document here to extract equations',
 
     // ConvertDoc
-    convertDocButton: 'Convert a document',
+    convertSectionTitle: 'Automatic document converter',
+    convertToSvgButton: 'Code → SVG',
+    convertToCodeButton: 'SVG → code',
+    saveDocButton: 'Save document',
     convertingShort: 'Processing…',
-    convertDocHint: 'Word (.docx) or Writer (.odt) · replaces $$…$$ (LaTeX) and $$$…$$$ (AsciiMath) with SVG images',
-    convertedSuffix: '_equations',
+    convertDocHint: 'Word (.docx) or Writer (.odt) · $$…$$ (LaTeX) and $$$…$$$ (AsciiMath) ⇄ SVG images · saved as *_svg or *_code next to the original',
     unsupportedDoc: (ext) => `Unsupported format: .${ext} — only .docx and .odt`,
     convertingDoc: (name) => `Processing ${name}…`,
     convertingProgress: (done, total) => `Converting equations… ${done}/${total}`,
+    revertingProgress: (done, total) => `Recovering equations… ${done}/${total}`,
     noEquationsInDoc: 'No equation found between $$…$$ or $$$…$$$',
+    noSvgEquationsInDoc: 'This document has no MathEditor SVG equation to recover',
+    savedAs: (name) => `saved as ${name}`,
+    saveCancelled: 'Save cancelled — the converted document is still ready',
+    saveNeedsClick: (name) => `${name} is ready — click “Save document” to choose where`,
     conversionDone: (ok, failed) => {
       const doneMsg = `${ok} equation${ok === 1 ? '' : 's'} converted`;
       return failed
         ? `${doneMsg} · ${failed} with error${failed === 1 ? '' : 's'}: check the comments in the document`
+        : `✓ ${doneMsg}`;
+    },
+    revertDone: (ok, skipped) => {
+      const doneMsg = `${ok} equation${ok === 1 ? '' : 's'} recovered`;
+      return skipped
+        ? `✓ ${doneMsg} · ${skipped} image${skipped === 1 ? '' : 's'} without metadata, left untouched`
         : `✓ ${doneMsg}`;
     },
 

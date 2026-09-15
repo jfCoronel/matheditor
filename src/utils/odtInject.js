@@ -43,7 +43,7 @@ function deepText(n) {
 
 // ODF collapses runs of whitespace, so anything beyond a single space has to be
 // written as <text:s text:c="n"/> — the same shape LibreOffice writes itself.
-function textNodes(str, doc) {
+export function textNodes(str, doc) {
   const out  = [];
   const push = s => { if (s) out.push(doc.createTextNode(s)); };
   const re   = /( {2,}|\t|\n)/g;
