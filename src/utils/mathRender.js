@@ -56,15 +56,20 @@ export function createMathRenderer({ font = '' } = {}) {
     if (!typeset) throw new Error('MathJax no está listo');
 
     const container = await typeset.call(mj, source, { display });
-    const svgs = container.querySelectorAll('svg');
-    if (!svgs.length) throw new Error('MathJax no devolvió ningún SVG');
-    // More than one means inline line-breaking is on and the expression came back
-    // in pieces; keeping the first would silently drop the rest of the equation.
-    if (svgs.length > 1) {
+    // Only the <svg> elements hanging DIRECTLY off mjx-container are pieces of a
+    // line-broken expression — MathJax separates those with <mjx-break>. Nested
+    // ones are something else entirely: a stretchy delimiter ('\left( … \right)')
+    // is drawn as an <svg> inside the main <svg>, and in display mode there can be
+    // several. Counting descendants instead of children flagged perfectly whole
+    // equations as broken, and only in display, which is where delimiters grow.
+    const pieces = Array.from(container.children).filter(el => el.tagName.toLowerCase() === 'svg');
+    if (!pieces.length) throw new Error('MathJax no devolvió ningún SVG');
+    // Keeping the first piece would silently drop the rest of the equation.
+    if (pieces.length > 1) {
       throw new Error('MathJax devolvió la ecuación partida en trozos: ' +
         'falta svg.linebreaks.inline = false en la configuración');
     }
-    const svgEl = svgs[0];
+    const svgEl = pieces[0];
 
     const error = detectError(svgEl.outerHTML);
     if (error) throw new Error(error);
