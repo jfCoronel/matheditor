@@ -4,3 +4,4 @@
 - [Conversión por lotes de documentos](doc-batch-conversion.md) — delimitadores, numeración, orden de formatos y política ante errores
 - [Repintado de Word para Mac](word-mac-repintado.md) — las imágenes no se pintan en arranque en frío; preguntar siempre si Word ya estaba abierto
 - [Dónde se guarda el documento convertido](doc-output-location.md) — junto al original, `*_svg` / `*_code`, y por qué hace falta la File System Access API
+- [Cómo probar sin framework de tests](como-probar-sin-tests.md) — jsdom para los documentos, Chrome headless + vite para MathJax
